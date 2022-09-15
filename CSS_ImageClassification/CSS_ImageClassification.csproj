@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="uploadtemp\**" />
+    <EmbeddedResource Remove="uploadtemp\**" />
+    <None Remove="uploadtemp\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Keras.NET" Version="3.8.5" />
+    <PackageReference Include="Microsoft.ML" Version="1.6.0" />
+    <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.6.0" />
+    <PackageReference Include="Microsoft.ML.Vision" Version="1.6.0" />
+    <PackageReference Include="OpenCvSharp4" Version="4.5.0.20201013" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.5.0.20201013" />
+    <PackageReference Include="pythonnet_netstandard_py38_win" Version="2.5.2" />
+    <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.3.1" />
+  </ItemGroup>
+  <ItemGroup Label="ImageClassification">
+    <None Include="ImageClassification.consumption.cs">
+      <DependentUpon>ImageClassification.mbconfig</DependentUpon>
+    </None>
+    <None Include="ImageClassification.training.cs">
+      <DependentUpon>ImageClassification.mbconfig</DependentUpon>
+    </None>
+    <None Include="ImageClassification.zip">
+      <DependentUpon>ImageClassification.mbconfig</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
