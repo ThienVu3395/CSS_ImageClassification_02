@@ -21,6 +21,8 @@ using Tensorflow;
 using Keras.Datasets;
 using System;
 using Python.Runtime;
+using Tensorflow.Keras.Layers;
+using System.IO;
 
 ////Load model and predict output
 
@@ -58,13 +60,13 @@ using Python.Runtime;
 
 //var model = new Sequential();
 
+//var layers = new LayersApi();
+
 //float rate = 0.8F;
 
 //int numClass = 10;
 
-//var inputs = keras.Input(shape: (28, 28, 1), name: "input");
-
-//var layers = new LayersApi();
+//var inputs = layers.Dense(3,input_shape = (1, img_size, img_size, 1));
 
 //var x = layers.Conv2D(32, 3, activation: "relu").Apply(inputs);
 //var block_1_output = layers.MaxPooling2D(2).Apply(x);
@@ -108,56 +110,109 @@ using Python.Runtime;
 //          validation_split: 0.2f);
 
 int batch_size = 128;
-int num_classes = 10;
+int num_classes = 40;
 int epochs = 1;
-int img_rows = 28;
-int img_cols = 28;
-Shape input_shape = null;
-Size size = new Size(28, 28);
-string folderPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Test\";
+int img_size = 28;
+Shape input_shape = (1, img_size, img_size, 1);
+Size size = new Size(img_size, img_size);
+string folderTrainPath = @"F:\Projects\CSS_ImageClassification_02\CSS_ImageClassification\Train\";
+string folderTestPath = @"F:\Projects\CSS_ImageClassification_02\CSS_ImageClassification\Test\";
 
 // the data, split between train and test sets
 var ((x_train, y_train), (x_test, y_test)) = MNIST.LoadData();
-Console.WriteLine(x_train[0]);
-Console.WriteLine($"x_train shape: {x_train[0].shape}");
-Console.WriteLine($"x_train type: {x_train[0].GetType()}");
-
-Mat img = Cv2.ImRead(folderPath + "temp2.jpg", ImreadModes.Color);
-Mat imgGray = new Mat();
-Cv2.CvtColor(img, imgGray, ColorConversionCodes.BGR2GRAY);
-Mat imgThres = new Mat();
-Cv2.Threshold(imgGray, imgThres, 150, 250, ThresholdTypes.Otsu);
-Mat imgResize = new Mat();
-Cv2.Resize(imgThres, imgResize, size);
-Console.WriteLine("==========================");
-Console.WriteLine(imgResize);
-Console.WriteLine($"imgResize size : {imgResize.Size()}");
-Console.WriteLine($"imgResize type : {imgResize.GetType()}");
-
+//Console.WriteLine($"{x_train[0]}");
+//Console.WriteLine($"{y_train[0]}");
+//Console.WriteLine($"{y_train[1]}");
+//Console.WriteLine($"{x_test[0]}");
+//Console.WriteLine($"{y_test[0]}");
+//x_train = x_train.reshape(-1, img_size, img_size, 1);
+//x_test = x_test.reshape(-1, img_size, img_size, 1);
 //if (Backend.ImageDataFormat() == "channels_first")
 //{
-//    x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols);
-//    x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols);
-//    input_shape = (1, img_rows, img_cols);
+//    x_train = x_train.reshape(x_train.shape[0], 1, img_size, img_size);
+//    x_test = x_test.reshape(x_test.shape[0], 1, img_size, img_size);
+//    input_shape = (1, img_size, img_size);
 //}
 //else
 //{
-//    x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1);
-//    x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1);
-//    input_shape = (img_rows, img_cols, 1);
+//    x_train = x_train.reshape(x_train.shape[0], img_size, img_size, 1);
+//    x_test = x_test.reshape(x_test.shape[0], img_size, img_size, 1);
+//    input_shape = (img_size, img_size, 1);
 //}
 
+//Console.WriteLine("==========================");
 //x_train = x_train.astype(np.float32);
 //x_test = x_test.astype(np.float32);
+
 //x_train /= 255;
 //x_test /= 255;
-//Console.WriteLine($"x_train shape: {x_train.shape}");
+
 //Console.WriteLine($"{x_train.shape[0]} train samples");
 //Console.WriteLine($"{x_test.shape[0]} test samples");
 
-//// convert class vectors to binary class matrices
-//y_train = Util.ToCategorical(y_train, num_classes);
+////// convert class vectors to binary class matrices
+//y_train = Util.ToCategorical(y_train, 10);
 //y_test = Util.ToCategorical(y_test, num_classes);
+
+Console.WriteLine($"{x_train[0].shape}");
+Console.WriteLine($"{y_train}");
+
+
+List<NDarray> train_x = new List<NDarray>();
+List<NDarray> train_y = new List<NDarray>();
+Console.WriteLine("========================== Load Training Data =================================");
+foreach (string folder in Directory.EnumerateDirectories(folderTrainPath, "*"))
+{
+    Console.WriteLine($">>>>>>>>>>>>>>>>>>>>> Load Folder : {Path.GetFileName(folder)}");
+    int label = int.Parse(Path.GetFileName(folder));
+    //NDarray label_y = Util.ToCategorical((NDarray)label, num_classes);
+    NDarray label_y = (NDarray)label;
+    Console.WriteLine(label_y);
+    foreach (string file in Directory.EnumerateFiles(folder, "*.jpg"))
+    {
+        Mat img = Cv2.ImRead(file, ImreadModes.Color);
+        Mat imgGray = new Mat();
+        Cv2.CvtColor(img, imgGray, ColorConversionCodes.BGR2GRAY);
+        Mat imgThres = new Mat();
+        Cv2.Threshold(imgGray, imgThres, 150, 250, ThresholdTypes.Otsu);
+        Mat imgResize = new Mat();
+        Cv2.Resize(imgThres, imgResize, size , interpolation : InterpolationFlags.Area);
+        imgResize.GetArray(out byte[] plainArray);
+        NDarray imgNDArray = np.array(plainArray, dtype: np.uint8);
+        NDarray imgNDArray_reshape = imgNDArray.reshape(-1, img_size, img_size, 1);
+        NDarray imgNDArray_train = imgNDArray_reshape.astype(np.float32);
+        train_x.add(imgNDArray_train);
+        train_y.add(label_y);
+        //Console.WriteLine(imgNDArray);
+        //Console.WriteLine($"imgNDArray shape : {imgNDArray.shape}");
+        //NDarray imgNDArray_train = imgNDArray.reshape(-1, img_size, img_size, 1);
+        //Console.WriteLine("==========================");
+        //Console.WriteLine($"imgNDArray_train shape: {imgNDArray_train.shape}");
+        break;
+    }
+    break;
+}
+
+//Console.WriteLine($"{train_x[0]}");
+Console.WriteLine($"{train_x[0].shape}");
+Console.WriteLine($"{train_y[0]}");
+
+//NDarray test_x;
+//NDarray test_y;
+//foreach (string folder in Directory.EnumerateDirectories(Path.Combine(folderTestPath, "Clean_02"), "*"))
+//{
+//    Console.WriteLine("==========================");
+//    Console.WriteLine($"{folder}");
+//    var label = Path.GetFileName(folder);
+//    Console.WriteLine($"{label}");
+//    foreach (string file in Directory.EnumerateFiles(folder, "*.jpg"))
+//    {
+//        Console.WriteLine($"{file}");
+//        break;
+//    }
+//    break;
+//}
+
 
 //// Build CNN model
 //var model = new Sequential();
