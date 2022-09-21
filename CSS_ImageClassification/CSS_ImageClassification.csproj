@@ -6,11 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="uploadtemp\**" />
-    <EmbeddedResource Remove="uploadtemp\**" />
-    <None Remove="uploadtemp\**" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Keras.NET" Version="3.8.5" />
     <PackageReference Include="Microsoft.ML" Version="1.6.0" />
     <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.6.0" />
@@ -34,5 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
+    <Folder Include="Uploadtemp\" />
   </ItemGroup>
 </Project>
