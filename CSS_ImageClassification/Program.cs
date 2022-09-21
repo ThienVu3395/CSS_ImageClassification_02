@@ -16,16 +16,19 @@ using System.IO;
 using System.Drawing.Text;
 using Google.Protobuf.WellKnownTypes;
 using System.Threading;
+using static Tensorflow.Summary.Types;
+using OpenCvSharp.Dnn;
+using System.Runtime.ConstrainedExecution;
 
-//// ====================================== Training Model
-int batch_size = 128;
-int num_classes = 41;
-int epochs = 50;
+////Training Model
+//int batch_size = 128;
+//int num_classes = 41;
+//int epochs = 50;
 int img_size = 28;
 Shape input_shape = (img_size, img_size, 1);
 Size size = new Size(img_size, img_size);
-string folderTrainPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Train\";
-string folderTestPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Test\";
+//string folderTrainPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Train\"; 
+//string folderTestPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Test\";
 string modelJsonPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Model\myClassificationModel.json";
 string modelWeightPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Model\myClassificationModel.h5";
 
@@ -137,9 +140,10 @@ string modelWeightPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_Imag
 var loaded_model = Sequential.ModelFromJson(File.ReadAllText(modelJsonPath));
 loaded_model.LoadWeight(modelWeightPath);
 
-// ============================================ Predict
+/////////////// Predict
 Console.WriteLine("==========================>>>> PREDICT ");
-string fileTestPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Uploadtemp\a (282).jpg";
+string fileTestPath = @"D:\0.Projects\CSS_ImageClassification-master\CSS_ImageClassification\Uploadtemp\img_0.jpg";
+
 List<NDarray> test_predict = new List<NDarray>();
 Mat imgtest = Cv2.ImRead(fileTestPath, ImreadModes.Color);
 Mat imgGraytest = new Mat();
